@@ -1,2 +1,2 @@
-# Medical-AI-ChatBot
-chatBot
+# vision & voice ai chatbot
+exploring ai

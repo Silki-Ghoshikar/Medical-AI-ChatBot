@@ -1,0 +1,325 @@
+AI Doctor 2.0 (Vision & Voice)
+Medical ChatBoat with MultiModel LLM
+
+
+
+PROJECT LAYOUT >
+
+Phase 1-Setup the brain of the Doctor (MultiModel LLM)
+.Setup GROQ API KEY
+.Convert image to required format
+.Setup Multimodel LLM
+
+Phase 2-Setup voice of the patient
+.Setup Audio recorder (ffmpeg & portaudio)
+.Setup Speech to text-STT_Model for Transcription ie (Whisper)
+
+Phase 3-Setup voice of the doctor
+.Setup Text to Speech-TTS_Model for Response ie (gTTS & ElevenLabs)
+.Use Model for text output to voice output
+
+Phase 4-Setup the UI for voiceBot
+.Setup UI for voiceBot with Gradio (framewrok in py for ai - ml Applications)
+
+
+
+TOOLS AND TECHNOLOGIES USED >
+.Groq for AI Inference
+.OpenAI  Whisper(STT)
+.Llama 3 vision (Open source by Meta)
+.gTTS & Elevenlab (Text to Speech)
+.Gradio (UI framework for AI applications)
+.Python (Programming Language)
+.ffmpeg (Audio processing)
+.PortAudio (Audio I/O library)
+.VSCode 
+
+
+
+TECHNICAL ARCHITECTURE :                                           
+                                _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ |  _ _ __ _ _ __ _ _         _ _ _ _ _ _ _ _ _ _  | _ _ _ __ _ _ _ _ _ _
+        |                     |  |                |        |                 |  |                     | 
+        |                     |  | Audio Recorder | -----> |Speech to Text   |  |                     |
+        |                     |  |                |        |  (STT AI Model) |  |                     |
+        |                     |  |_ _ _ __ _ _ __ |        |_ _ _ _ _ _ _ _ _|  |                     |
+_ _ _ _ | _ _ _ _             |_ _ __ _ __ __ _ _ __ __ __ _ __ _ _ _ __ _ __ _ |            __ _ __ _| __ _ _ _ _
+|              |                                  Phase 2: groq & OpenAI                     |  _ _ _ _ _ __ _    |
+| upload Image |                                                                             |  |             |   |
+|_ _ __ _ _ _ _|                                                                             |  |  |user Query|   |
+Phase 4: gradio                                                                              |  |_ _ _ _ ___ _|   |      
+        |                                                                                    |        |           |
+        |                                                                                    |        |           |
+        |                                                                                    |  _ _ _ | _ _  _ _  |
+        |                                                                                    | |                | |
+        |                                                                                    | | Vision Model   | |
+        |                                                                                    | |_ _ _ _ __ _ _ _| |
+        |                                                                                    |         |          |
+        |                                                                                    |         |          |
+        |                                                                                    |         |          |
+        |                                                                                    |  _ _ _ _|_ _ _ _   |  
+        |                                                                                    |  |             |   |
+        |                                                                                    |  |LLM Response |   |
+        |                                                                                    |  |_ _ __ _ _ _ |   |
+        |                                                                                    |_ _ _ _ _  __ _ _ _ |
+        |                                                                                    Phase 1: Meta & qroq
+        |                                                                                           | 
+        |                                __ _ _ __ _ __ _ _ _ __ _ _ _  _ _ _ _ _ _ _ __            |                                             |
+        |                               |    _ _ _ __ _ _ _ _    _ _ _ _ __ _ _ __     |            |
+        |                               |   |  Audio Output |   | Text to Speech |     |_ _ __ _ _ _|
+        |_ _ ___ _ _ __ _ __ _ _ _ _ _ _|   |    file       |   |    TTS Model   |     |      
+                                        |   |_ _ _ _ _ _ __ |   |_ _ __ __ _ _ __|     |
+                                        |_ __ _ __ _ __ _  _ _ __ _ _ _ __ _ _ _ _ __ _|
+                                                Phase 3: 11ElevenLabs
+
+
+
+DOCUMENTATION
+
+File NAme :brain_of_the_doctor >
+1.Prerequisites
+Python Packages
+
+Install required libraries using:
+pip install groq
+pip install python-dotenv  # Optional for .env file support
+===============================
+Image Analysis with GROQ LLM
+===============================
+
+Overview:
+---------
+This script uses the GROQ multimodal LLM to analyze an image based on a user-defined text query. The image is converted to a base64-encoded format and submitted along with a prompt to the selected GROQ model.
+
+Steps and Functionality:
+------------------------
+
+1. **Environment Setup**
+   - Optionally load environment variables using:
+     ```python
+     from dotenv import load_dotenv
+     load_dotenv()
+     ```
+   - Retrieves GROQ API key from environment:
+     ```python
+     GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+     ```
+
+2. **Image Encoding**
+   - Function `encode_image(image_path)`:
+     - Opens an image file in binary mode.
+     - Converts it to a base64-encoded string (required format for GROQ image input).
+     - Returns the encoded string.
+
+3. **Query Analysis with Image**
+   - Function `analyze_image_with_query(query, model, encoded_image)`:
+     - Sets up the GROQ client.
+     - Constructs a user message containing both the query and the image.
+     - Sends the message to the specified model.
+     - Returns the model's response text.
+
+Models Supported:
+-----------------
+- `"meta-llama/llama-4-scout-17b-16e-instruct"`
+- `"meta-llama/llama-4-maverick-17b-128e-instruct"` (commented)
+- `"llama-3.2-90b-vision-preview"` (deprecated)
+
+Usage Example:
+--------------
+```python
+query = "Is there something wrong with my face?"
+encoded = encode_image("acne.jpg")
+result = analyze_image_with_query(query, model, encoded)
+print(result)
+
+
+
+
+
+
+file NAme : voice_of_the_doctor
+1.Prerequisites
+Install required libraries:
+pip install gTTS
+pip install elevenlabs
+Set your ElevenLabs API Key:
+
+rom pathlib import Path
+
+# Documentation content for Text-to-Speech system
+doc_content = """
+=======================================
+Text-to-Speech System using gTTS & ElevenLabs
+=======================================
+
+Overview:
+---------
+This script provides two Text-to-Speech (TTS) implementations:
+1. Google Text-to-Speech (gTTS) - offline save and optional playback
+2. ElevenLabs Text-to-Speech - realistic AI voice generation with playback
+
+Both versions support saving to an MP3 file and playing the output automatically based on OS.
+
+--------------------------------------------------------------------------------
+1. Setup
+--------------------------------------------------------------------------------
+
+If you're not using pipenv, you can load environment variables from a `.env` file:
+# from dotenv import load_dotenv
+# load_dotenv()
+
+Then the following modules are imported:
+- os: For accessing environment variables
+- gtts: Google TTS module for generating speech
+- elevenlabs: ElevenLabs client API
+- subprocess, platform: For OS-specific audio playback
+
+--------------------------------------------------------------------------------
+2. Google Text-to-Speech (gTTS)
+--------------------------------------------------------------------------------
+
+Function: text_to_speech_with_gtts_old(input_text, output_filepath)
+- Uses gTTS to convert text to speech and save it as an MP3 file.
+- Parameters:
+  - input_text: Text to be converted to audio.
+  - output_filepath: Path where MP3 file will be saved.
+- Example:
+  text_to_speech_with_gtts_old("Hello world!", "output.mp3")
+
+Function: text_to_speech_with_gtts(input_text, output_filepath)
+- Same as above but includes automatic audio playback depending on the OS:
+  - macOS: afplay
+  - Windows: powershell + Media.SoundPlayer
+  - Linux: aplay (alternatives: mpg123, ffplay)
+- Try-except used for error handling.
+
+--------------------------------------------------------------------------------
+3. ElevenLabs Text-to-Speech
+--------------------------------------------------------------------------------
+
+Environment Variable:
+ELEVENLABS_API_KEY = os.environ.get("ELEVEN_API_KEY")
+
+Function: text_to_speech_with_elevenlabs_old(input_text, output_filepath)
+- Uses the ElevenLabs API to convert text to speech and save as MP3.
+- Voice: "Aria"
+- Format: "mp3_22050_32"
+- Model: "eleven_turbo_v2"
+
+Function: text_to_speech_with_elevenlabs(input_text, output_filepath)
+- Same as above, but includes automatic playback for macOS, Windows, and Linux.
+
+--------------------------------------------------------------------------------
+4. Example Usage
+--------------------------------------------------------------------------------
+
+input_text = "Hi this is AI with Hassan!"
+text_to_speech_with_gtts_old(input_text, "gtts_testing.mp3")
+
+# Or with playback
+text_to_speech_with_gtts(input_text, "gtts_autoplay.mp3")
+
+# ElevenLabs
+text_to_speech_with_elevenlabs_old(input_text, "elevenlabs_testing.mp3")
+text_to_speech_with_elevenlabs(input_text, "elevenlabs_autoplay.mp3")
+
+--------------------------------------------------------------------------------
+5. Requirements
+--------------------------------------------------------------------------------
+- gTTS: pip install gTTS
+- elevenlabs: pip install elevenlabs
+- playsound or OS sound library
+- ffmpeg or aplay for Linux playback
+- Environment variable ELEVEN_API_KEY must be set
+
+--------------------------------------------------------------------------------
+6. Notes
+--------------------------------------------------------------------------------
+- The ElevenLabs voice "Aria" can be changed to another supported voice.
+- Internet connection is required for both services.
+- Always handle exceptions in production for better reliability.
+"""
+
+
+
+
+
+File Name :voice _of _the_patient
+Audio Recording and Transcription using GROQ Whisper
+====================================================
+
+1. Introduction
+---------------
+This project records audio using a microphone and converts it into text using the GROQ Whisper model.
+It includes two main steps:
+  - Audio Recording using Python libraries.
+  - Transcription using GROQ's Whisper large model via API.
+
+2. Requirements
+---------------
+Install dependencies:
+  pip install speechrecognition pyaudio pydub groq
+
+Also install system tools:
+  - ffmpeg
+  - portaudio
+
+3. Environment Variables
+------------------------
+Set the following environment variable:
+  GROQ_API_KEY=your_groq_api_key
+
+If not using pipenv, load .env file by uncommenting:
+  from dotenv import load_dotenv
+  load_dotenv()
+
+4. File Structure
+-----------------
+.
+├── main_script.py
+├── patient_voice_test_for_patient.mp3
+└── .env (optional)
+
+5. Code Workflow
+----------------
+
+Step 1: Record Audio
+--------------------
+Function: record_audio(file_path, timeout=20, phrase_time_limit=None)
+
+- Uses `speech_recognition` to listen via microphone.
+- Adjusts for ambient noise.
+- Records until phrase ends or time limit hits.
+- Converts raw WAV data to MP3 using `pydub`.
+
+Step 2: Transcribe with GROQ
+----------------------------
+Function: transcribe_with_groq(stt_model, audio_filepath, GROQ_API_KEY)
+
+- Initializes Groq client with API key.
+- Loads the recorded audio file.
+- Sends file for transcription using 'whisper-large-v3' model.
+- Returns text output.
+
+6. Logging
+----------
+The system logs all major steps (recording start/end, saving, and errors) using Python's logging module.
+
+7. Sample Usage
+---------------
+audio_filepath = "patient_voice_test_for_patient.mp3"
+record_audio(file_path=audio_filepath)
+text = transcribe_with_groq("whisper-large-v3", audio_filepath, GROQ_API_KEY)
+print("Transcribed Text:", text)
+
+
+
+
+
+
+
+
+
+
+
+                 
